@@ -1,2 +1,3 @@
-# landing-page
+# Landing Page Project
+
 Project 2 - Udacity Front-End Web Development Nanodegree
