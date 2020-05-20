@@ -20,8 +20,10 @@
 
 const navbar__menu = document.getElementsByTagName('nav');
 const navbar__list = document.getElementById('navbar__list');
-const sections = document.getElementsByTagName('section');
+const sections = document.querySelectorAll('section');
+const toTop__btn = document.getElementById('toTop__btn');
 let currentActiveElem = document.querySelector('.active');
+const firstSection = document.querySelector('main section');
 
 /**
  * End Global Variables
@@ -39,6 +41,10 @@ const buildNavList = () => {
             link.textContent = currentSectionName;
             link.classList.add('menu__link');
             link.setAttribute('id', `${currentSectionId}__link`);
+            link.setAttribute('href', `#${currentSectionId}`);
+            if (section.classList.contains('active')) {
+                link.classList.add('active');
+            }
             navbar__item.setAttribute('class', 'navbar__item');
             navbar__item.onclick = function(e) {
                 e.preventDefault();
@@ -64,6 +70,39 @@ const isElementInViewPort = (element) => {
     );
 }
 
+const showCurrentActiveSection = () => {
+    let navbar__list__links = document.querySelectorAll('nav ul li a');
+    for (link of navbar__list__links) {
+        let section = document.querySelector(link.hash);
+        if (section.classList.contains('active') && section === currentActiveElem) {
+
+            link.classList.add('active');
+        } else {
+            section.classList.remove('active');
+            link.classList.remove('active');
+            if (isElementInViewPort(section)) {
+                // Add class 'active' to section when near top of viewport
+                currentActiveElem.classList.add('active');
+                link.classList.add('active');
+                currentActiveElem = section;
+            }
+        }
+    }
+}
+
+const scrollToTop = () => {
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        toTop__btn.style.display = "block";
+    } else {
+        toTop__btn.style.display = "none";
+    }
+}
+
+const toTop = () => {
+    firstSection.scrollIntoView(true);
+    firstSection.classList.add('active');
+}
+
 /**
  * End Helper Functions
  * Begin Main Functions
@@ -73,23 +112,14 @@ const isElementInViewPort = (element) => {
 function init() {
     // build the nav
     buildNavList();
+    toTop__btn.addEventListener("click", toTop);
 }
 
-function addActiveToLink() {
-    for (section of sections) {
-        if (section.classList.contains('active') && section === currentActiveElem) {
-            // do nothing
-
-        } else {
-            section.classList.remove('active');
-            if (isElementInViewPort(section)) {
-                // Add class 'active' to section when near top of viewport
-                currentActiveElem.classList.add('active');
-                currentActiveElem = section;
-            }
-        }
-    }
+function onScroll() {
+    showCurrentActiveSection();
+    scrollToTop();
 }
+
 /**
  * End Main Functions
  * Begin Events
@@ -97,4 +127,7 @@ function addActiveToLink() {
  */
 
 document.addEventListener('DOMContentLoaded', init);
-document.addEventListener('scroll', addActiveToLink);
+window.addEventListener('scroll', onScroll);
+window.onbeforeunload = function() {
+    window.scrollTo(0, 0);
+}
